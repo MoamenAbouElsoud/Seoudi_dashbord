@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سعودي هايبرماركت — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-dark: #1C4A1E;
+  --green:      #2C5F2D;
+  --green-mid:  #4A8C4D;
+  --green-light:#A8D5AA;
+  --green-bg:   #E8F5E9;
+  --gold:       #C8960C;
+  --gold-bg:    #FFF8E1;
+  --red:        #B71C1C;
+  --red-bg:     #FFEBEE;
+  --text:       #1A2E1B;
+  --muted:      #6B7C6C;
+  --border:     #D4EDD5;
+  --bg:         #F4F7F4;
+  --white:      #FFFFFF;
+  --shadow:     0 1px 8px rgba(28,74,30,0.08);
+  --radius:     10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--green-dark);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-box {
+  width: 36px; height: 36px;
+  background: var(--white);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 900; color: var(--green-dark);
+  line-height: 1.2; text-align: center;
+}
+.header-title { color: var(--white); font-weight: 700; font-size: 15px; }
+.header-sub   { color: var(--green-light); font-size: 11px; margin-top: 1px; }
+.header-info  { color: var(--green-light); font-size: 11px; text-align: left; }
+
+/* ── FILTERS ── */
+.filters {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-left: 4px;
+}
+.filter-sep { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
+.btn {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn:hover { border-color: var(--green); color: var(--green); }
+.btn.active { background: var(--green-dark); border-color: var(--green-dark); color: var(--white); }
+
+/* ── LAYOUT ── */
+.page { padding: 16px 20px; max-width: 1300px; margin: 0 auto; }
+
+/* ── KPI CARDS ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-right: 4px solid var(--green);
+  box-shadow: var(--shadow);
+}
+.kpi.gold  { border-right-color: var(--gold); }
+.kpi.red   { border-right-color: var(--red); }
+.kpi-val   { font-size: 22px; font-weight: 900; color: var(--green-dark); line-height: 1; }
+.kpi.gold .kpi-val { color: var(--gold); }
+.kpi.red  .kpi-val { color: var(--red); }
+.kpi-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+.kpi-sub   { font-size: 11px; font-weight: 700; color: var(--green); margin-top: 3px; }
+.kpi.gold .kpi-sub { color: var(--gold); }
+.kpi.red  .kpi-sub { color: var(--red); }
+
+/* ── CHART GRID ── */
+.row-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 12px; margin-bottom: 12px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.row-full { margin-bottom: 12px; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* ── INSIGHT BAR ── */
+.insight {
+  background: var(--green-dark);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.ins-item { display: flex; flex-direction: column; gap: 2px; }
+.ins-val  { font-size: 16px; font-weight: 900; color: var(--gold); }
+.ins-lbl  { font-size: 11px; color: var(--green-light); }
+.ins-sep  { width: 1px; height: 30px; background: #2C5F2D; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .row-2   { grid-template-columns: 1fr; }
+  .row-3   { grid-template-columns: 1fr 1fr; }
+  .header-info { display: none; }
+  .ins-sep { display: none; }
+}
+@media (max-width: 560px) {
+  .page    { padding: 12px; }
+  .filters { padding: 8px 12px; }
+  .kpi-row { gap: 8px; }
+  .row-3   { grid-template-columns: 1fr; }
+  .kpi-val { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="logo-box">سعودي<br>SEOUDI</div>
+    <div>
+      <div class="header-title">سعودي هايبرماركت</div>
+      <div class="header-sub">Sales Dashboard · 2021–2023</div>
+    </div>
+  </div>
+  <div class="header-info">20 فرع · 9 مدن · 50,000 معاملة</div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters">
+  <span class="filter-label">السنة / Year:</span>
+  <button class="btn active" onclick="filter('year','all',this)">الكل</button>
+  <button class="btn" onclick="filter('year','2021',this)">2021</button>
+  <button class="btn" onclick="filter('year','2022',this)">2022</button>
+  <button class="btn" onclick="filter('year','2023',this)">2023</button>
+
+  <div class="filter-sep"></div>
+
+  <span class="filter-label">الربع / Quarter:</span>
+  <button class="btn active" onclick="filter('quarter','all',this)">الكل</button>
+  <button class="btn" onclick="filter('quarter','Q1',this)">Q1</button>
+  <button class="btn" onclick="filter('quarter','Q2',this)">Q2</button>
+  <button class="btn" onclick="filter('quarter','Q3',this)">Q3</button>
+  <button class="btn" onclick="filter('quarter','Q4',this)">Q4</button>
+
+  <div class="filter-sep"></div>
+
+  <span class="filter-label">الشهر / Month:</span>
+  <button class="btn active" onclick="filter('month','all',this)">الكل</button>
+  <button class="btn" onclick="filter('month','1',this)">يناير</button>
+  <button class="btn" onclick="filter('month','2',this)">فبراير</button>
+  <button class="btn" onclick="filter('month','3',this)">مارس</button>
+  <button class="btn" onclick="filter('month','4',this)">أبريل</button>
+  <button class="btn" onclick="filter('month','5',this)">مايو</button>
+  <button class="btn" onclick="filter('month','6',this)">يونيو</button>
+  <button class="btn" onclick="filter('month','7',this)">يوليو</button>
+  <button class="btn" onclick="filter('month','8',this)">أغسطس</button>
+  <button class="btn" onclick="filter('month','9',this)">سبتمبر</button>
+  <button class="btn" onclick="filter('month','10',this)">أكتوبر</button>
+  <button class="btn" onclick="filter('month','11',this)">نوفمبر</button>
+  <button class="btn" onclick="filter('month','12',this)">ديسمبر</button>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-val" id="kv-rev">7.04M</div>
+      <div class="kpi-label">إجمالي الإيراد (EGP)</div>
+      <div class="kpi-sub" id="kv-rev-s">↑ نما +13% في 2023</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val" id="kv-profit">2.27M</div>
+      <div class="kpi-label">إجمالي الربح — Gross Profit</div>
+      <div class="kpi-sub" id="kv-profit-s">Margin 32.2%</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-val" id="kv-margin">32.2%</div>
+      <div class="kpi-label">هامش الربح — Gross Margin</div>
+      <div class="kpi-sub" id="kv-margin-s">أعلى فئة: مستلزمات 45.6%</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-val" id="kv-tx">50,000</div>
+      <div class="kpi-label">عدد المعاملات — Transactions</div>
+      <div class="kpi-sub" id="kv-tx-s">متوسط المعاملة 140 EGP</div>
+    </div>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="insight">
+    <div class="ins-item"><span class="ins-val" id="ins1">+13%</span><span class="ins-lbl">نمو الإيراد 2023</span></div>
+    <div class="ins-sep"></div>
+    <div class="ins-item"><span class="ins-val" id="ins2">Q3</span><span class="ins-lbl">أقوى ربع سنوياً</span></div>
+    <div class="ins-sep"></div>
+    <div class="ins-item"><span class="ins-val">45.6%</span><span class="ins-lbl">أعلى Margin (مستلزمات)</span></div>
+    <div class="ins-sep"></div>
+    <div class="ins-item"><span class="ins-val">+29.5%</span><span class="ins-lbl">أسرع فرع (مدينة نصر)</span></div>
+    <div class="ins-sep"></div>
+    <div class="ins-item"><span class="ins-val">55%</span><span class="ins-lbl">إنفاق VIP من الكل</span></div>
+  </div>
+
+  <!-- ROW 1: Revenue trend + Top branches -->
+  <div class="row-2">
+    <div class="card">
+      <div class="card-title">الإيراد والربح — Revenue & Profit</div>
+      <div class="card-sub" id="rev-sub">الأرباع الـ 12 · 2021–2023</div>
+      <canvas id="chartRevenue" height="130"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">أعلى الفروع إيراداً — Top Branches</div>
+      <div class="card-sub">Revenue by Branch</div>
+      <canvas id="chartBranches" height="130"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 2: Categories + Quarterly pattern + Growth -->
+  <div class="row-3">
+    <div class="card">
+      <div class="card-title">Gross Margin % بالفئة</div>
+      <div class="card-sub">هامش الربح لكل فئة</div>
+      <canvas id="chartCat" height="180"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">الإيراد بالربع — Quarterly Pattern</div>
+      <div class="card-sub">Q3 الأقوى باستمرار</div>
+      <canvas id="chartQuarter" height="180"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">نمو YoY بالفروع — Branch Growth</div>
+      <div class="card-sub">أسرع الفروع نمواً 2023</div>
+      <canvas id="chartGrowth" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 3: Customers -->
+  <div class="row-2">
+    <div class="card">
+      <div class="card-title">شرائح العملاء — Customer Segments</div>
+      <div class="card-sub">توزيع الإنفاق بالـ Segment</div>
+      <canvas id="chartSeg" height="100"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">تأثير الخصم على الـ Margin</div>
+      <div class="card-sub">كل 5% خصم = خسارة ~4% Margin</div>
+      <canvas id="chartDisc" height="100"></canvas>
+    </div>
+  </div>
+
+</div><!-- end page -->
+
+<script>
+// ── COLORS ─────────────────────────────────────────
+const C = {
+  g1:'#1C4A1E', g2:'#2C5F2D', g3:'#4A8C4D', g4:'#A8D5AA',
+  gold:'#C8960C', red:'#B71C1C', muted:'#6B7C6C', border:'#D4EDD5'
+};
+
+// ── DATA ────────────────────────────────────────────
+// Monthly data: [year][month] = {rev, profit, tx}
+const MONTHLY = {
+  2021: {
+    1:{r:141626,p:45317,t:1011}, 2:{r:148234,p:47435,t:1058}, 3:{r:148235,p:47436,t:1057},
+    4:{r:175212,p:56068,t:1249}, 5:{r:178943,p:57261,t:1278}, 6:{r:182166,p:58293,t:1301},
+    7:{r:192543,p:61613,t:1375}, 8:{r:195826,p:62664,t:1399}, 9:{r:199274,p:63768,t:1423},
+    10:{r:178432,p:57098,t:1275},11:{r:183751,p:58800,t:1313},12:{r:181711,p:58148,t:1298}
+  },
+  2022: {
+    1:{r:149432,p:47818,t:1067}, 2:{r:152978,p:48953,t:1093}, 3:{r:159355,p:50994,t:1139},
+    4:{r:192543,p:61614,t:1375}, 5:{r:195124,p:62440,t:1394}, 6:{r:200756,p:64242,t:1434},
+    7:{r:216543,p:69294,t:1547}, 8:{r:222312,p:71140,t:1588}, 9:{r:236223,p:75591,t:1688},
+    10:{r:195422,p:62535,t:1397},11:{r:196443,p:62862,t:1403},12:{r:198177,p:63417,t:1416}
+  },
+  2023: {
+    1:{r:181634,p:58123,t:1297}, 2:{r:185312,p:59300,t:1323}, 3:{r:200330,p:64106,t:1431},
+    4:{r:213542,p:68333,t:1525}, 5:{r:218943,p:70062,t:1564}, 6:{r:223671,p:71575,t:1598},
+    7:{r:228456,p:73106,t:1632}, 8:{r:234512,p:75044,t:1675}, 9:{r:249532,p:79850,t:1782},
+    10:{r:219432,p:70218,t:1567},11:{r:224897,p:71967,t:1607},12:{r:234937,p:75162,t:1678}
+  }
+};
+
+const QUARTER_MAP = {Q1:[1,2,3], Q2:[4,5,6], Q3:[7,8,9], Q4:[10,11,12]};
+const MONTH_NAMES = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+const BRANCHES = [
+  {n:'سيدي جابر',r:407012,p:129551,m:31.8,g:15.7},
+  {n:'عين شمس',r:405372,p:130561,m:32.2,g:24.3},
+  {n:'الزمالك',r:404873,p:132388,m:32.7,g:19.6},
+  {n:'التجمع الخامس',r:404844,p:130026,m:32.1,g:13.5},
+  {n:'الهرم',r:402858,p:127801,m:31.7,g:3.3},
+  {n:'الجيزة الدقي',r:393649,p:129063,m:32.8,g:12.5},
+  {n:'مصر الجديدة',r:387583,p:124322,m:32.1,g:16.1},
+  {n:'مدينة نصر',r:386537,p:125574,m:32.5,g:29.5},
+];
+
+const CATEGORIES = [
+  {n:'مستلزمات شخصية',m:45.6},
+  {n:'مخبوزات وحلويات',m:38.9},
+  {n:'منظفات ومنزلية',m:33.7},
+  {n:'خضار وفاكهة',m:32.4},
+  {n:'منتجات الألبان',m:29.4},
+  {n:'أغذية مجمدة',m:29.2},
+  {n:'لحوم ودواجن',m:24.5},
+  {n:'مواد جافة',m:21.6},
+];
+
+// ── FILTER STATE ────────────────────────────────────
+let state = { year:'all', quarter:'all', month:'all' };
+const charts = {};
+
+// ── FILTER LOGIC ────────────────────────────────────
+function getFilteredData() {
+  let rows = [];
+  const years = state.year === 'all' ? [2021,2022,2023] : [parseInt(state.year)];
+
+  years.forEach(y => {
+    let months = Object.keys(MONTHLY[y]).map(Number);
+    if (state.quarter !== 'all') months = months.filter(m => QUARTER_MAP[state.quarter].includes(m));
+    if (state.month !== 'all') months = months.filter(m => m === parseInt(state.month));
+    months.forEach(m => rows.push({y, m, ...MONTHLY[y][m]}));
+  });
+  return rows;
+}
+
+function getLabels(rows) {
+  if (state.month !== 'all') return rows.map(r => r.y.toString());
+  if (state.quarter !== 'all') return rows.map(r => `${state.quarter}'${r.y.toString().slice(2)}`);
+  if (state.year !== 'all') return rows.map(r => MONTH_NAMES[r.m]);
+  return rows.map(r => `${MONTH_NAMES[r.m].slice(0,3)}'${r.y.toString().slice(2)}`);
+}
+
+// ── UPDATE KPIs ─────────────────────────────────────
+function updateKPIs(rows) {
+  const rev = rows.reduce((s,r) => s+r.r, 0);
+  const prf = rows.reduce((s,r) => s+r.p, 0);
+  const tx  = rows.reduce((s,r) => s+r.t, 0);
+  const mgn = (prf/rev*100).toFixed(1);
+  const fmt = n => n>=1e6?(n/1e6).toFixed(2)+'M': n>=1e3?(n/1e3).toFixed(0)+'K': n.toLocaleString();
+
+  document.getElementById('kv-rev').textContent    = fmt(rev);
+  document.getElementById('kv-profit').textContent = fmt(prf);
+  document.getElementById('kv-margin').textContent = mgn+'%';
+  document.getElementById('kv-tx').textContent     = tx.toLocaleString();
+
+  // dynamic subs
+  if (state.year === '2023') {
+    document.getElementById('kv-rev-s').textContent = '↑ +13% من 2022';
+  } else if (state.year === '2022') {
+    document.getElementById('kv-rev-s').textContent = '↑ +9.9% من 2021';
+  } else {
+    document.getElementById('kv-rev-s').textContent = '↑ نما +13% في 2023';
+  }
+  document.getElementById('kv-profit-s').textContent = `Margin ${mgn}%`;
+  document.getElementById('kv-margin-s').textContent = 'أعلى فئة: مستلزمات 45.6%';
+  document.getElementById('kv-tx-s').textContent = `متوسط ${(rev/tx).toFixed(0)} EGP / معاملة`;
+}
+
+// ── REVENUE CHART ────────────────────────────────────
+function buildRevenue(rows) {
+  if (charts.rev) charts.rev.destroy();
+  const labels = getLabels(rows);
+  const sub = state.year !== 'all' ? `شهرياً · ${state.year}` :
+              state.quarter !== 'all' ? `${state.quarter} للسنوات الثلاثة` :
+              'الأرباع الـ 12 · 2021–2023';
+  document.getElementById('rev-sub').textContent = sub;
+
+  charts.rev = new Chart(document.getElementById('chartRevenue'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'الإيراد', data:rows.map(r=>r.r), backgroundColor:C.g2+'99', borderColor:C.g2, borderWidth:1.5, borderRadius:3 },
+        { label:'الربح',   data:rows.map(r=>r.p), backgroundColor:C.g4+'BB', borderColor:C.g4, borderWidth:1.5, borderRadius:3 },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ font:{family:'Cairo',size:10}, color:C.muted, boxWidth:10 } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{family:'Cairo',size:9}, color:C.muted, maxRotation:45} },
+        y:{ grid:{color:C.border}, ticks:{font:{size:9}, color:C.muted, callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v} }
+      }
+    }
+  });
+}
+
+// ── BRANCHES CHART ───────────────────────────────────
+function buildBranches() {
+  if (charts.br) charts.br.destroy();
+  charts.br = new Chart(document.getElementById('chartBranches'), {
+    type: 'bar',
+    data: {
+      labels: BRANCHES.map(b=>b.n),
+      datasets:[{ data:BRANCHES.map(b=>b.r), backgroundColor:BRANCHES.map((_,i)=>i===0?C.gold+'BB':C.g2+'99'), borderColor:BRANCHES.map((_,i)=>i===0?C.gold:C.g2), borderWidth:1.5, borderRadius:3 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:C.border}, ticks:{font:{size:9}, color:C.muted, callback:v=>(v/1000).toFixed(0)+'K'}},
+        y:{grid:{display:false}, ticks:{font:{family:'Cairo',size:9}, color:C.g1}}
+      }
+    }
+  });
+}
+
+// ── CATEGORY CHART ───────────────────────────────────
+function buildCat() {
+  if (charts.cat) charts.cat.destroy();
+  const colors = CATEGORIES.map(c => c.m>=40?C.g1+`EE`:c.m>=33?C.g2+`CC`:c.m>=28?C.g3+`CC`:c.m>=24?C.gold+`CC`:C.red+`CC`);
+  charts.cat = new Chart(document.getElementById('chartCat'), {
+    type:'bar',
+    data:{ labels:CATEGORIES.map(c=>c.n), datasets:[{ data:CATEGORIES.map(c=>c.m), backgroundColor:colors, borderWidth:0, borderRadius:3 }] },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:C.border}, min:0, max:55, ticks:{font:{size:9}, color:C.muted, callback:v=>v+'%'}},
+        y:{grid:{display:false}, ticks:{font:{family:'Cairo',size:9}, color:C.g1}}
+      }
+    }
+  });
+}
+
+// ── QUARTERLY PATTERN ────────────────────────────────
+function buildQuarter(rows) {
+  if (charts.qtr) charts.qtr.destroy();
+
+  // aggregate by quarter label
+  const qAgg = {};
+  rows.forEach(r => {
+    let q = Object.entries(QUARTER_MAP).find(([,ms])=>ms.includes(r.m));
+    if (!q) return;
+    const key = state.year==='all' ? q[0] : `${q[0]}'${r.y.toString().slice(2)}`;
+    if (!qAgg[key]) qAgg[key] = {r:0,p:0};
+    qAgg[key].r += r.r; qAgg[key].p += r.p;
+  });
+
+  const labels = Object.keys(qAgg);
+  const revs   = labels.map(k=>qAgg[k].r);
+  const bgColors = labels.map(k=>k.startsWith('Q3')?C.gold+'BB':C.g2+'99');
+
+  charts.qtr = new Chart(document.getElementById('chartQuarter'), {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Revenue', data:revs, backgroundColor:bgColors, borderWidth:0, borderRadius:3 }] },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{family:'Cairo',size:9}, color:C.muted}},
+        y:{grid:{color:C.border}, ticks:{font:{size:9}, color:C.muted, callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v}}
+      }
+    }
+  });
+}
+
+// ── BRANCH GROWTH ────────────────────────────────────
+function buildGrowth() {
+  if (charts.gr) charts.gr.destroy();
+  const sorted = [...BRANCHES].sort((a,b)=>b.g-a.g);
+  charts.gr = new Chart(document.getElementById('chartGrowth'), {
+    type:'bar',
+    data:{
+      labels:sorted.map(b=>b.n),
+      datasets:[{ data:sorted.map(b=>b.g), backgroundColor:sorted.map(b=>b.g>20?C.gold+'CC':b.g>0?C.g2+'99':C.red+'BB'), borderWidth:0, borderRadius:3 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:C.border}, ticks:{font:{size:9}, color:C.muted, callback:v=>v+'%'}},
+        y:{grid:{display:false}, ticks:{font:{family:'Cairo',size:9}, color:C.g1}}
+      }
+    }
+  });
+}
+
+// ── SEGMENTS ─────────────────────────────────────────
+function buildSeg() {
+  if (charts.seg) charts.seg.destroy();
+  charts.seg = new Chart(document.getElementById('chartSeg'), {
+    type:'doughnut',
+    data:{
+      labels:['VIP — 55%','Gold — 33.6%','Silver — 9.6%','Regular — 1.7%'],
+      datasets:[{ data:[55,33.6,9.6,1.7], backgroundColor:[C.g1,C.gold,C.g3,'#9E9E9E'], borderWidth:0, hoverOffset:5 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true, cutout:'55%',
+      plugins:{ legend:{ position:'right', labels:{ font:{family:'Cairo',size:10}, color:C.muted, padding:8 } } }
+    }
+  });
+}
+
+// ── DISCOUNT ─────────────────────────────────────────
+function buildDisc() {
+  if (charts.disc) charts.disc.destroy();
+  charts.disc = new Chart(document.getElementById('chartDisc'), {
+    type:'line',
+    data:{
+      labels:['0%','5%','10%','15%','20%'],
+      datasets:[{ label:'Gross Margin %', data:[35,31.6,27.9,23,19], borderColor:C.red, backgroundColor:C.red+'22', borderWidth:2.5, pointBackgroundColor:C.red, pointRadius:5, fill:true, tension:.3 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:10}, color:C.muted} },
+        y:{ grid:{color:C.border}, min:15, max:40, ticks:{font:{size:9}, color:C.muted, callback:v=>v+'%'} }
+      }
+    }
+  });
+}
+
+// ── FILTER HANDLER ───────────────────────────────────
+function filter(type, val, btn) {
+  // reset other filters when selecting specific value
+  if (type === 'year' && val !== 'all') {
+    state.quarter = 'all'; state.month = 'all';
+    document.querySelectorAll('.btn').forEach(b => {
+      const txt = b.textContent.trim();
+      if (['الكل','Q1','Q2','Q3','Q4'].includes(txt)) b.classList.remove('active');
+      if (txt === 'الكل') {
+        // reactivate only first "الكل" buttons per group
+      }
+    });
+    // reset quarter/month "الكل" buttons
+    resetGroupToAll('quarter'); resetGroupToAll('month');
+  }
+  if (type === 'quarter' && val !== 'all') {
+    state.month = 'all';
+    resetGroupToAll('month');
+  }
+
+  state[type] = val;
+
+  // update button styles within group
+  const groupMap = {
+    year: ['الكل','2021','2022','2023'],
+    quarter: ['الكل','Q1','Q2','Q3','Q4'],
+    month: ['الكل','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+  };
+  document.querySelectorAll('.btn').forEach(b => {
+    if (groupMap[type].includes(b.textContent.trim())) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+
+  render();
+}
+
+function resetGroupToAll(type) {
+  const groupMap = {
+    quarter: ['الكل','Q1','Q2','Q3','Q4'],
+    month: ['الكل','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+  };
+  document.querySelectorAll('.btn').forEach(b => {
+    const txt = b.textContent.trim();
+    if (groupMap[type].includes(txt)) {
+      b.classList.remove('active');
+      if (txt === 'الكل') b.classList.add('active');
+    }
+  });
+}
+
+// ── RENDER ALL ───────────────────────────────────────
+function render() {
+  const rows = getFilteredData();
+  updateKPIs(rows);
+  buildRevenue(rows);
+  buildQuarter(rows);
+  // static charts (not affected by time filter)
+  buildBranches();
+  buildCat();
+  buildGrowth();
+  buildSeg();
+  buildDisc();
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>
